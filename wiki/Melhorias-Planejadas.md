@@ -38,20 +38,6 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 
 ---
 
-## 🗺️ Integração com Google Maps (import automático de empresas)
-
-**Status**: Plano técnico completo. Adiado em **2026-05-23** por exigir billing GCP.
-
-**Motivo**: Google Maps Platform exige cartão de crédito cadastrado no Google Cloud, mesmo que o consumo fique 100% no free tier. O owner optou por aguardar maturidade em produção antes de tomar decisão de custos.
-
-**Gatilho de retomada**: produto em uso real + decisão sobre billing GCP **ou** decisão de seguir com alternativa zero-billing (OpenStreetMap Overpass).
-
-**O que faz**: endpoint admin que recebe `{ cep, raioMetros, tipo }`, geocodifica o CEP, busca empresas via Google Places Nearby Search no raio, cadastra cada uma com `Ativo=false`. Admin revisa e reativa via painel.
-
-📐 **Plano técnico completo**: [Plano-Google-Maps-Integration](Plano-Google-Maps-Integration) — inclui avaliação de custos detalhada (~US$ 0.10/operação), alternativa OSM Overpass, decisões arquiteturais pendentes.
-
----
-
 ## 🔄 Decompose do `EmpresasFilterMapExample.tsx` (Fase 2)
 
 **Status**: Fase 1 completa. Fase 2 pendente.
@@ -76,20 +62,6 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 
 ---
 
-## 🧪 Smoke tests para features restantes do painel
-
-**Status**: 3 features cobertas. 4 pendentes.
-
-**Faltam**: `PontosInstitucionaisCardsScreen`, `TelefonesUteisManagementScreen`, `PontosInstitucionaisManagementScreen`, `EmpresasManagementScreen`.
-
-**Motivo de adiamento**: o ROI é decrescente — os 3 testes existentes já validam o padrão de fetch + render + erro. Os 4 restantes seguem o mesmo template.
-
-**Gatilho**: regressão em produção numa dessas features, ou tempo livre de mantenedor.
-
-📐 Sem plano técnico — implementação é cópia do padrão existente em [`TelefonesUteisCardsScreen.test.tsx`](https://github.com/checkin-industrial/checkin-industrial-painel/blob/main/src/features/telefonesUteis/TelefonesUteisCardsScreen.test.tsx).
-
----
-
 ## 🐳 Tecnologia de deploy
 
 **Status**: **bloqueador para colocar em produção**.
@@ -106,18 +78,6 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 **Gatilho**: primeiro cliente real ou SLA definido.
 
 📐 Sem plano técnico — precisa de decisão de produto antes. Quando a tecnologia for escolhida, cada uma justifica um plano próprio (Terraform pra GCP é diferente de Dockerfile + scripts pra VPS).
-
----
-
-## 🔐 Swagger SecurityDefinition pra X-Api-Key
-
-**Status**: removido temporariamente.
-
-**Motivo**: o upgrade pra Swashbuckle 10 mudou a API de `Microsoft.OpenApi.Models`. UI do Swagger continua funcionando, só não tem botão "Authorize" para o header `X-Api-Key`.
-
-**Gatilho**: próximo refactor de DI da API ou quando alguém precisar testar endpoints autenticados via UI do Swagger.
-
-📐 Sem plano técnico — fix de ~30min seguindo a nova API do Swashbuckle 10. Não tem decisão arquitetural.
 
 ---
 
@@ -174,3 +134,14 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 1. Abrir branch + PR no(s) repo(s) afetado(s).
 2. PR descrição cita este item da Wiki (ou o link pro `Plano-*` correspondente).
 3. Após merge: editar esta página — **remover** o item ou movê-lo pra uma seção "Histórico" com link pro PR que entregou. Se havia `Plano-*`, deletar também (ou arquivar com nota "executado em PR #X").
+
+---
+
+## 📜 Histórico (entregues)
+
+| Data | Item | PR(s) |
+|---|---|---|
+| 2026-05-24 | Google Maps Import (backend) | [api#13](https://github.com/checkin-industrial/checkin-industrial-api/pull/13), [api#14](https://github.com/checkin-industrial/checkin-industrial-api/pull/14) (defaults conservadores) |
+| 2026-05-24 | Cluster automático de markers (>200 visíveis) | [painel#18](https://github.com/checkin-industrial/checkin-industrial-painel/pull/18) |
+| 2026-05-24 | Swagger SecurityDefinition X-Api-Key | [api#12](https://github.com/checkin-industrial/checkin-industrial-api/pull/12) |
+| 2026-05-24 | Smoke tests das 4 telas restantes | [painel#17](https://github.com/checkin-industrial/checkin-industrial-painel/pull/17) |
