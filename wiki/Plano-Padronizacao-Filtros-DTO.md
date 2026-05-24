@@ -2,7 +2,7 @@
 
 Plano técnico no formato **Plan Mode** do Claude Code. Pode ser dado direto pra outro desenvolvedor (humano ou agente) executar.
 
-> **Status**: Adiado aguardando 3º caso, mas com escopo elaborado preventivamente. Ver [Melhorias-Planejadas](Melhorias-Planejadas).
+> **Status**: ✅ **Entregue em 2026-05-24** ([api#16](https://github.com/checkin-industrial/checkin-industrial-api/pull/16)). Empresa.Status fica com parsing próprio (3 estados, domain-specific); Ponto/Telefone migrados para `Ativo: string?` com helper compartilhado em `src/Shared/Filters/FilterHelpers.cs`. Plano preservado como referência da arquitetura adotada (D1-D6 todas executadas).
 
 ---
 
