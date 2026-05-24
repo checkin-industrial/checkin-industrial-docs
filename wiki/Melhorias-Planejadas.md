@@ -117,18 +117,6 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 
 ---
 
-## 🔁 Padronização de filtros via DTO (na API)
-
-**Status**: parcial.
-
-**Motivo**: diferentes endpoints de filtro têm assinaturas diferentes (`EmpresaFilterParams`, `DTOPontoInstitucionalFiltroParams`, `DTOTelefoneUtilFiltroParams`). Cada um parseia ativo/setor/tipo de jeito ligeiramente diferente.
-
-**Gatilho**: o 3º caso já existe (TelefoneUtil). Retomar quando o 4º caso surgir — aí o padrão emergente fica claro o suficiente para padronizar com confiança. Padronizar agora seria preventivo demais e poderia gerar rework se o 4º caso trouxer requisito novo (paginação, ordering).
-
-📐 **Plano técnico**: [Plano-Padronizacao-Filtros-DTO](Plano-Padronizacao-Filtros-DTO) — 6 decisões (D1-D6) com recomendação marcada, migração em 5 fases, foco em helper compartilhado em `Shared/Filters/` em vez de herança (alinhado com VSA), padronização do tratamento de `Ativo` (`string?` com helper único).
-
----
-
 ## ✅ Como mover algo daqui pra "feito"
 
 1. Abrir branch + PR no(s) repo(s) afetado(s).
@@ -145,3 +133,5 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 | 2026-05-24 | Cluster automático de markers (>200 visíveis) | [painel#18](https://github.com/checkin-industrial/checkin-industrial-painel/pull/18) |
 | 2026-05-24 | Swagger SecurityDefinition X-Api-Key | [api#12](https://github.com/checkin-industrial/checkin-industrial-api/pull/12) |
 | 2026-05-24 | Smoke tests das 4 telas restantes | [painel#17](https://github.com/checkin-industrial/checkin-industrial-painel/pull/17) |
+| 2026-05-24 | Decompose EmpresasFilterMap Fase 2 | [painel#22](https://github.com/checkin-industrial/checkin-industrial-painel/pull/22) |
+| 2026-05-24 | Padronização Filter DTOs (Shared/Filters/) | [api#16](https://github.com/checkin-industrial/checkin-industrial-api/pull/16) |
