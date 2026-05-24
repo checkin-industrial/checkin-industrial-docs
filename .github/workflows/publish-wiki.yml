@@ -1,0 +1,60 @@
+name: Publish Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "wiki/**"
+      - ".github/workflows/publish-wiki.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Concurrency garante que pushes simultaneos nao gerem race condition no wiki repo
+# (que aceita apenas um clone-modify-push por vez).
+concurrency:
+  group: publish-wiki
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Sync wiki/ -> GitHub Wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Clone Wiki repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki-out
+          echo "Wiki clonado com sucesso."
+
+      - name: Sync files
+        run: |
+          set -euo pipefail
+          # Remove apenas .md do destino antes de copiar — preserva binarios (imagens)
+          # que possam ter sido uploadados via UI do wiki.
+          find wiki-out -maxdepth 1 -name "*.md" -delete
+          cp wiki/*.md wiki-out/
+          echo "Arquivos sincronizados:"
+          ls -la wiki-out/*.md
+
+      - name: Commit + push
+        run: |
+          set -euo pipefail
+          cd wiki-out
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add -A
+          if git diff --staged --quiet; then
+            echo "Wiki ja esta sincronizado, nada a fazer."
+            exit 0
+          fi
+          git commit -m "Sync wiki from main @ ${GITHUB_SHA::7}"
+          git push
+          echo "Wiki publicado: https://github.com/${{ github.repository }}/wiki"
