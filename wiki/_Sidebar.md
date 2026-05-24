@@ -2,7 +2,7 @@
 
 - [Home](Home)
 - [Melhorias Planejadas](Melhorias-Planejadas)
-  - [Plano: Google Maps](Plano-Google-Maps-Integration)
+  - [Plano: Google Maps (entregue)](Plano-Google-Maps-Integration)
   - [Plano: Decompose EmpresasFilterMap Fase 2](Plano-Decompose-EmpresasFilterMap-Fase-2)
   - [Plano: Padronização de Filtros DTO](Plano-Padronizacao-Filtros-DTO)
   - [Plano: Relatórios — Overview](Plano-Relatorios-Overview)

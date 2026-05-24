@@ -2,7 +2,7 @@
 
 Plano técnico no formato **Plan Mode** do Claude Code. Pode ser dado direto pra outro desenvolvedor (humano ou agente) executar.
 
-> **Status**: Adiado em 2026-05-23. Ver [Melhorias-Planejadas](Melhorias-Planejadas) para motivo e gatilho de retomada.
+> **Status**: ✅ **Backend entregue em 2026-05-24** ([api#13](https://github.com/checkin-industrial/checkin-industrial-api/pull/13) + [api#14](https://github.com/checkin-industrial/checkin-industrial-api/pull/14)). UI no painel + E2E com WireMock ainda pendentes — ver seções abaixo. Este plano fica como referência da arquitetura adotada (D5 resolvido como **Opção 1** — reusa `SetorEmpresa` existente).
 
 ---
 
