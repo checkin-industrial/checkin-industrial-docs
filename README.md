@@ -14,7 +14,8 @@ checkin-industrial-docs/
 ├── Apresentacao_Comercial_Plataforma_Industrial.pdf    (deck comercial — 9.7 MB)
 ├── wiki/                                               (source-of-truth do Wiki)
 │   ├── Home.md
-│   ├── Melhorias-Planejadas.md
+│   ├── Melhorias-Planejadas.md                         (index de backlog — visão humana)
+│   ├── Plano-Google-Maps-Integration.md                (plano técnico Plan Mode — exemplo canônico)
 │   ├── Para-Clientes.md
 │   ├── Para-Devs-Arquitetura.md
 │   ├── Para-Devs-Como-Rodar-Localmente.md

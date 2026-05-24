@@ -1,8 +1,40 @@
 # Melhorias Planejadas
 
-Backlog de features e melhorias **deliberadamente adiadas** com motivo explícito. Cada item tem o nível de planejamento já feito e o gatilho que destrava a retomada.
+Backlog de features e melhorias **deliberadamente adiadas** com motivo explícito e gatilho de retomada.
 
-> **Como usar esta página**: quando precisar priorizar próximo ciclo, pondere os itens pelo gatilho ("o que precisa acontecer antes?"). Não tire daqui sem mover para um PR.
+> **Como usar esta página**: quando precisar priorizar próximo ciclo, pondere os itens pelo gatilho ("o que precisa acontecer antes?"). Não tire daqui sem mover para um PR e atualizar este index.
+
+---
+
+## 📐 Convenção: visão humana + plano técnico
+
+Cada melhoria pode existir em **dois formatos complementares**, deixando uma memória permanente que pode ser retomada por qualquer desenvolvedor (humano ou agente de IA):
+
+### 1. Visão humana — esta página
+
+Resumo de **uma seção** por item: o que é, por que foi adiado, qual o gatilho de retomada. Otimizado pra leitura rápida em reunião de priorização. Não tem detalhe técnico de implementação.
+
+### 2. Plano técnico — página separada
+
+Para itens com escopo bem definido, existe uma página dedicada `Plano-<nome-da-feature>` no formato **Plan Mode do Claude Code**:
+
+- Goal + Contexto + Estado atual
+- Decisões a tomar (com recomendação marcada)
+- Implementação passo-a-passo (arquivos a criar/modificar)
+- Estratégia de testes
+- Riscos + edge cases
+- Definition of done
+
+Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) executar com mínima orientação adicional. O plano é **memória permanente do raciocínio** — sobrevive a mudanças de equipe.
+
+**Quem precisa de plano técnico**: itens com >2h de implementação **e** mais de uma decisão arquitetural já discutida. Itens triviais (e.g., bump de dependência) ficam só na visão humana.
+
+### Convenção de nomeação
+
+| Tipo de arquivo | Padrão |
+|---|---|
+| Índice (este arquivo) | `Melhorias-Planejadas.md` |
+| Plano técnico | `Plano-<Nome-Kebab-Case>.md` |
 
 ---
 
@@ -10,58 +42,13 @@ Backlog de features e melhorias **deliberadamente adiadas** com motivo explícit
 
 **Status**: Plano técnico completo. Adiado em **2026-05-23** por exigir billing GCP.
 
-**Motivo de adiamento**: Google Maps Platform exige cartão de crédito cadastrado no Google Cloud, mesmo que o consumo fique 100% no free tier. O owner optou por aguardar maturidade em produção antes de tomar decisão de custos.
+**Motivo**: Google Maps Platform exige cartão de crédito cadastrado no Google Cloud, mesmo que o consumo fique 100% no free tier. O owner optou por aguardar maturidade em produção antes de tomar decisão de custos.
 
-**Gatilho de retomada**: produto em uso real + decisão explícita sobre billing GCP **ou** decisão de seguir com alternativa zero-billing.
+**Gatilho de retomada**: produto em uso real + decisão sobre billing GCP **ou** decisão de seguir com alternativa zero-billing (OpenStreetMap Overpass).
 
-### Escopo desenhado
+**O que faz**: endpoint admin que recebe `{ cep, raioMetros, tipo }`, geocodifica o CEP, busca empresas via Google Places Nearby Search no raio, cadastra cada uma com `Ativo=false`. Admin revisa e reativa via painel.
 
-Endpoint admin que recebe `{ cep, raioMetros, tipo }`, geocodifica o CEP, busca empresas via **Google Places Nearby Search** no raio e cadastra cada uma com `Ativo=false`. Admin revisa e reativa via painel.
-
-- Inicial: só tipo `industria` → mapeia para `place_type=industrial`
-- Aberto pra crescer: `loja → store`, `farmacia → pharmacy`, `restaurante → restaurant`, `hotel → lodging`, etc.
-- Dedup via `GooglePlaceId string?` (unique-when-not-null) — novo campo na entidade Empresa
-- `Cnpj` precisaria virar **nullable** (Google não retorna CNPJ; admin preenche depois)
-
-### Avaliação de custos (Google Places API)
-
-Pricing oficial (atualizado em **2026-05-23** — confira <https://cloud.google.com/google-maps-platform/pricing> antes de tomar decisão final):
-
-| SKU | Custo unitário | O que consome |
-|---|---|---|
-| Places Nearby Search v1 | **~US$ 0.032 / request** | 1 chamada = até 20 resultados; até 3 páginas = 60 resultados máximo |
-| Geocoding API | **~US$ 0.005 / request** | Para converter CEP → lat/lng (alternativa: usar Nominatim grátis) |
-| Place Details (se buscar telefone/site) | **~US$ 0.017 / request** | Por empresa importada |
-
-**Estimativa por operação de import (raio 10 km, ~60 resultados):**
-
-- Nearby Search: 3 páginas × US$ 0.032 = **US$ 0.096**
-- (Opcional) Place Details para enriquecer: 60 × US$ 0.017 = **US$ 1.02**
-- (Se usar Geocoding Google): + US$ 0.005
-
-**Total por operação**: **US$ 0.10** (mínimo) a **US$ 1.13** (com enriquecimento completo).
-
-**Free tier (verificar política atual)**:
-- Modelo histórico: US$ 200 de crédito mensal automático — equivalente a ~6.250 Nearby Searches grátis/mês.
-- Modelo novo (anunciado 2024): cotas por SKU. ~10.000 chamadas de essentials grátis/mês.
-
-Para o uso esperado (admin disparando import esporádico ao mapear uma região nova), **deveria caber no free tier**. Mas há que se ter cartão cadastrado.
-
-### Alternativa zero-billing: OpenStreetMap Overpass API
-
-Plano técnico equivalente, troca o cliente HTTP:
-
-- **Custo**: zero, sem cadastro, sem cartão
-- **Dados**: comunitários (OSM). Qualidade boa em capitais, fraca no interior do Brasil
-- **Query**: Overpass QL — pedir POIs com `landuse=industrial` ou `amenity=*` dentro de raio
-- **Rate limit**: ~1 req/segundo. Aceitável pra uso admin
-- Já temos **Nominatim** (mesma família OSM) em uso para geocoding — padrão técnico já no projeto
-
-### Decisão arquitetural pendente
-
-Quando esta feature voltar à mesa, **uma decisão precisa ser tomada antes do código**: novo enum `TipoEmpresa` (granular: Indústria/Loja/Farmácia/Hotel/...) ou reusar `Setor` existente (3 valores: Indústria/Comércio/Serviços)?
-
-Recomendação técnica: **novo enum**, alinhado a Google Places types, separado de `Setor`. Detalhes no plano arquivado da sessão de 2026-05-23.
+📐 **Plano técnico completo**: [Plano-Google-Maps-Integration](Plano-Google-Maps-Integration) — inclui avaliação de custos detalhada (~US$ 0.10/operação), alternativa OSM Overpass, decisões arquiteturais pendentes.
 
 ---
 
@@ -69,9 +56,11 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Status**: Fase 1 completa. Fase 2 pendente.
 
-**Contexto**: O componente do mapa público acumulou ~1500 linhas (filtros + popup + rota OSRM + sub-mapa de vizinhança). Fase 1 extraiu helpers e migrou para `useQuery`. Fase 2 quebraria em sub-componentes: `FilterPanel`, `EmpresaPopup`, `NeighborhoodOverlay`, `RouteOverlay`, `StatsPanel`.
+**Motivo**: O componente do mapa público tem ~1500 linhas (filtros + popup + rota OSRM + sub-mapa de vizinhança). Fase 1 já extraiu helpers e migrou pra `useQuery`. Fase 2 quebra em sub-componentes: `FilterPanel`, `EmpresaPopup`, `NeighborhoodOverlay`, `RouteOverlay`, `StatsPanel`.
 
-**Gatilho**: próxima feature que precise mexer no mapa principal — refactor + feature na mesma PR.
+**Gatilho**: próxima feature que precise mexer no mapa principal — refactor + feature na mesma PR (justifica o investimento).
+
+📐 Plano técnico: a criar quando o gatilho ocorrer (escopo conhecido, mas detalhes esperam o caso de uso real que dispara).
 
 ---
 
@@ -79,9 +68,11 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Status**: planejado.
 
-**Contexto**: `src/styles.css` global tem ~2890 linhas. Migrar para `<Componente>.module.css` ao lado de cada componente facilita manutenção e elimina conflitos de seletor.
+**Motivo**: `src/styles.css` global tem ~2890 linhas. Migrar para `<Componente>.module.css` ao lado de cada componente facilita manutenção e elimina conflitos de seletor.
 
 **Gatilho**: feature visual nova grande, ou refactor de tema (dark mode etc.).
+
+📐 Sem plano técnico ainda — implementação é padrão (extração mecânica), não tem decisões não-óbvias.
 
 ---
 
@@ -91,9 +82,11 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Faltam**: `PontosInstitucionaisCardsScreen`, `TelefonesUteisManagementScreen`, `PontosInstitucionaisManagementScreen`, `EmpresasManagementScreen`.
 
-**Estimativa**: ~30 min por feature. Padrão já estabelecido em `TelefonesUteisCardsScreen.test.tsx`.
+**Motivo de adiamento**: o ROI é decrescente — os 3 testes existentes já validam o padrão de fetch + render + erro. Os 4 restantes seguem o mesmo template.
 
 **Gatilho**: regressão em produção numa dessas features, ou tempo livre de mantenedor.
+
+📐 Sem plano técnico — implementação é cópia do padrão existente em [`TelefonesUteisCardsScreen.test.tsx`](https://github.com/checkin-industrial/checkin-industrial-painel/blob/main/src/features/telefonesUteis/TelefonesUteisCardsScreen.test.tsx).
 
 ---
 
@@ -101,16 +94,18 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Status**: **bloqueador para colocar em produção**.
 
-**Contexto**: O `checkin-industrial-infra` é placeholder. Opções avaliadas mas não decididas:
+**Motivo de adiamento**: decisão de produto, não técnica. Opções avaliadas mas não escolhidas:
 
 - **Railway** — referenciado no `docker-compose` original. Setup mais rápido. Custo previsível.
-- **Fly.io** — multi-region grátis, pode escalar pra clusters depois.
+- **Fly.io** — multi-region grátis, escala pra clusters depois.
 - **GCP Cloud Run / Cloud SQL** — escala automática, paga só pelo uso.
 - **VPS tradicional + Docker** (Hetzner / DigitalOcean) — mais barato em volume baixo, exige mais sysadmin.
 
 **Decisões dependentes**: SSL/domínio, backup do Postgres, monitoring (Sentry? OpenTelemetry?), CDN para painel.
 
-**Gatilho**: primeiro cliente real / SLA definido.
+**Gatilho**: primeiro cliente real ou SLA definido.
+
+📐 Sem plano técnico — precisa de decisão de produto antes. Quando a tecnologia for escolhida, cada uma justifica um plano próprio (Terraform pra GCP é diferente de Dockerfile + scripts pra VPS).
 
 ---
 
@@ -118,9 +113,11 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Status**: removido temporariamente.
 
-**Contexto**: O upgrade pra Swashbuckle 10 mudou a API de `Microsoft.OpenApi.Models`. UI do Swagger continua funcionando, só não tem botão "Authorize" para o header `X-Api-Key`.
+**Motivo**: o upgrade pra Swashbuckle 10 mudou a API de `Microsoft.OpenApi.Models`. UI do Swagger continua funcionando, só não tem botão "Authorize" para o header `X-Api-Key`.
 
 **Gatilho**: próximo refactor de DI da API ou quando alguém precisar testar endpoints autenticados via UI do Swagger.
+
+📐 Sem plano técnico — fix de ~30min seguindo a nova API do Swashbuckle 10. Não tem decisão arquitetural.
 
 ---
 
@@ -128,9 +125,11 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Status**: rodando no startup.
 
-**Contexto**: `Program.cs` chama `db.Database.Migrate()` no startup do container. Funciona em **single-instance**; em multi-instance (load-balanced) há race condition.
+**Motivo**: `Program.cs` chama `db.Database.Migrate()` no startup do container. Funciona em **single-instance**; em multi-instance (load-balanced) há race condition.
 
 **Gatilho**: deploy multi-instance (depende da decisão de infra).
+
+📐 Sem plano técnico — depende de qual tecnologia de deploy for escolhida (init container k8s? job CI? script de pre-deploy?).
 
 ---
 
@@ -138,14 +137,16 @@ Recomendação técnica: **novo enum**, alinhado a Google Places types, separado
 
 **Status**: parcial.
 
-**Contexto**: Diferentes endpoints de filtro têm assinaturas diferentes (`EmpresaFilterParams`, `DTOPontoInstitucionalFiltroParams`, `DTOTelefoneUtilFiltroParams`). Cada um parseia ativo/setor/tipo de jeito ligeiramente diferente.
+**Motivo**: diferentes endpoints de filtro têm assinaturas diferentes (`EmpresaFilterParams`, `DTOPontoInstitucionalFiltroParams`, `DTOTelefoneUtilFiltroParams`). Cada um parseia ativo/setor/tipo de jeito ligeiramente diferente.
 
 **Gatilho**: terceira feature nova com filtro complexo, ou se for adicionar paginação cross-feature.
+
+📐 Sem plano técnico — vale aguardar o terceiro caso para entender o padrão emergente antes de padronizar.
 
 ---
 
 ## ✅ Como mover algo daqui pra "feito"
 
 1. Abrir branch + PR no(s) repo(s) afetado(s).
-2. PR descrição cita este item da Wiki.
-3. Após merge: editar esta página, **remover** o item ou movê-lo pra uma seção "Histórico" com link para o PR que entregou.
+2. PR descrição cita este item da Wiki (ou o link pro `Plano-*` correspondente).
+3. Após merge: editar esta página — **remover** o item ou movê-lo pra uma seção "Histórico" com link pro PR que entregou. Se havia `Plano-*`, deletar também (ou arquivar com nota "executado em PR #X").

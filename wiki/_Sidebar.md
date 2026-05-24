@@ -2,6 +2,7 @@
 
 - [Home](Home)
 - [Melhorias Planejadas](Melhorias-Planejadas)
+  - [Plano: Google Maps](Plano-Google-Maps-Integration)
 
 ### Visão de Produto
 
