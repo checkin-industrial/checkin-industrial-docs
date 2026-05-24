@@ -16,6 +16,8 @@ checkin-industrial-docs/
 │   ├── Home.md
 │   ├── Melhorias-Planejadas.md                         (index de backlog — visão humana)
 │   ├── Plano-Google-Maps-Integration.md                (plano técnico Plan Mode — exemplo canônico)
+│   ├── Plano-Decompose-EmpresasFilterMap-Fase-2.md     (refactor do componente do mapa em sub-componentes)
+│   ├── Plano-Padronizacao-Filtros-DTO.md               (helpers compartilhados para filtros da API)
 │   ├── Para-Clientes.md
 │   ├── Para-Devs-Arquitetura.md
 │   ├── Para-Devs-Como-Rodar-Localmente.md

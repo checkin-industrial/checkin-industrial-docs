@@ -60,7 +60,7 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 
 **Gatilho**: próxima feature que precise mexer no mapa principal — refactor + feature na mesma PR (justifica o investimento).
 
-📐 Plano técnico: a criar quando o gatilho ocorrer (escopo conhecido, mas detalhes esperam o caso de uso real que dispara).
+📐 **Plano técnico**: [Plano-Decompose-EmpresasFilterMap-Fase-2](Plano-Decompose-EmpresasFilterMap-Fase-2) — extração em 8 sub-fases, decisão por Context vs prop drilling, 5 smoke tests, definition of done com PR por fase.
 
 ---
 
@@ -139,9 +139,9 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 
 **Motivo**: diferentes endpoints de filtro têm assinaturas diferentes (`EmpresaFilterParams`, `DTOPontoInstitucionalFiltroParams`, `DTOTelefoneUtilFiltroParams`). Cada um parseia ativo/setor/tipo de jeito ligeiramente diferente.
 
-**Gatilho**: terceira feature nova com filtro complexo, ou se for adicionar paginação cross-feature.
+**Gatilho**: o 3º caso já existe (TelefoneUtil). Retomar quando o 4º caso surgir — aí o padrão emergente fica claro o suficiente para padronizar com confiança. Padronizar agora seria preventivo demais e poderia gerar rework se o 4º caso trouxer requisito novo (paginação, ordering).
 
-📐 Sem plano técnico — vale aguardar o terceiro caso para entender o padrão emergente antes de padronizar.
+📐 **Plano técnico**: [Plano-Padronizacao-Filtros-DTO](Plano-Padronizacao-Filtros-DTO) — 6 decisões (D1-D6) com recomendação marcada, migração em 5 fases, foco em helper compartilhado em `Shared/Filters/` em vez de herança (alinhado com VSA), padronização do tratamento de `Ativo` (`string?` com helper único).
 
 ---
 
