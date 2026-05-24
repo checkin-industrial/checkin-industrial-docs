@@ -27,14 +27,32 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clone Wiki repo
+        id: clone
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -euo pipefail
-          git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki-out
-          echo "Wiki clonado com sucesso."
+          set -uo pipefail
+          # Setup one-time: GitHub Wiki precisa de UMA pagina criada pela UI antes
+          # do .wiki.git existir. Se ainda nao foi feito, o clone retorna 128 com
+          # "repository not found" - tratamos como skip (warning, nao falha) para
+          # nao quebrar o CI da main. Apos o owner criar a primeira pagina em
+          # Settings -> Wiki, este passo passa a clonar normalmente e o sync
+          # acontece no proximo push.
+          if git clone "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.wiki.git" wiki-out 2>clone-err.log; then
+            echo "Wiki clonado com sucesso."
+            echo "wiki_ready=true" >> "$GITHUB_OUTPUT"
+          else
+            if grep -qi "not found" clone-err.log; then
+              echo "::warning::Wiki nao bootstrapped ainda. Crie a primeira pagina via UI em Settings -> Wiki, depois re-execute este workflow."
+              echo "wiki_ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            cat clone-err.log >&2
+            exit 1
+          fi
 
       - name: Sync files
+        if: steps.clone.outputs.wiki_ready == 'true'
         run: |
           set -euo pipefail
           # Remove apenas .md do destino antes de copiar — preserva binarios (imagens)
@@ -45,6 +63,7 @@ jobs:
           ls -la wiki-out/*.md
 
       - name: Commit + push
+        if: steps.clone.outputs.wiki_ready == 'true'
         run: |
           set -euo pipefail
           cd wiki-out
