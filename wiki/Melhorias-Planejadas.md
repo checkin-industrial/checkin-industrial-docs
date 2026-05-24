@@ -133,6 +133,30 @@ Pode ser dado direto pra outro desenvolvedor (ou pra uma nova sessão Claude) ex
 
 ---
 
+## 📊 Relatórios gerenciais (3 telas)
+
+**Status**: Planos técnicos completos. Adiado até decisão sobre Q1 (faturamento) e Q3/Q4 (modelo de Settings/GeoJSON).
+
+**Motivo**: A spec original do produto previa três telas de relatório gerencial (configuração de mapas admin, ranking de empresas com Top 10 + CNAEs, dashboard geoespacial com análise de vizinhança). Não foram implementadas na MVP por exigirem decisões de produto ainda não tomadas (fonte de faturamento, modelagem de distritos, relação fornecedor/concorrente).
+
+**Gatilho de retomada**: Q1 (faturamento) respondida + Q3/Q4 (Settings/GeoJSON) respondidas. Cada tela tem pré-requisitos próprios documentados no plano.
+
+**O que faz**:
+
+- **Tela 1** (admin): configurar tile server, upload de GeoJSON de distritos, opacidade do heatmap.
+- **Tela 2** (gerencial): Top 10 empresas por faturamento (mapa numerado + tabela + export CSV) + Top CNAEs mais frequentes (barras proporcionais).
+- **Tela 3** (analista): filtros avançados (porte/setor/situação/faturamento) + camadas (distritos/heatmap/rodovias) + painel de análise de vizinhança com KPIs.
+
+📐 **Plano overview**: [Plano-Relatorios-Overview](Plano-Relatorios-Overview) — reconciliação spec ↔ stack, 4 perguntas abertas (Q1-Q4), 4 fundações compartilhadas (F1-F4), ordem de implementação.
+
+📐 **Planos por tela**:
+
+- [Plano-Tela-1-Configuracao-Mapas](Plano-Tela-1-Configuracao-Mapas) — admin GIS (~3.5 dias)
+- [Plano-Tela-2-Ranking-Empresas](Plano-Tela-2-Ranking-Empresas) — Top 10 + CNAEs (~2.75 dias)
+- [Plano-Tela-3-Dashboard-Vizinhanca](Plano-Tela-3-Dashboard-Vizinhanca) — exploração interativa (~5.5 dias sem Decompose; ~8-9 com Decompose Fase 2 antes)
+
+---
+
 ## 🔁 Padronização de filtros via DTO (na API)
 
 **Status**: parcial.

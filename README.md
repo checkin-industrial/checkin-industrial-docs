@@ -18,6 +18,10 @@ checkin-industrial-docs/
 │   ├── Plano-Google-Maps-Integration.md                (plano técnico Plan Mode — exemplo canônico)
 │   ├── Plano-Decompose-EmpresasFilterMap-Fase-2.md     (refactor do componente do mapa em sub-componentes)
 │   ├── Plano-Padronizacao-Filtros-DTO.md               (helpers compartilhados para filtros da API)
+│   ├── Plano-Relatorios-Overview.md                    (fundações compartilhadas das 3 telas de relatório)
+│   ├── Plano-Tela-1-Configuracao-Mapas.md              (admin GIS — tile server + GeoJSON distritos)
+│   ├── Plano-Tela-2-Ranking-Empresas.md                (Top 10 + CNAEs + export CSV)
+│   ├── Plano-Tela-3-Dashboard-Vizinhanca.md            (filtros avançados + análise de vizinhança)
 │   ├── Para-Clientes.md
 │   ├── Para-Devs-Arquitetura.md
 │   ├── Para-Devs-Como-Rodar-Localmente.md
